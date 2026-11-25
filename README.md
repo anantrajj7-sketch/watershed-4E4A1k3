@@ -2,13 +2,10 @@
 
 **Live website: https://anantrajj7-sketch.github.io/watershed-4E4A1k3/**
 
-Interactive 3D model of watershed 4E4A1k3 (2,363 ha, Pathardi and Ashti talukas, Maharashtra). It works on desktop and on phones, and the page is about 30 MB, so give it a moment to load.
+Interactive 3D model of watershed 4E4A1k3 (2,363 ha, Pathardi and Ashti talukas, Maharashtra). It works on desktop and on phones, and the page is about 34 MB, so give it a moment to load.
 
-The model includes the 362 proposed water harvesting sites (gully plugs, nala bunds, check dams, percolation tanks) as 3D models, plus symbols for the area-based structures (contour trenches, farm ponds, recharge pits). They are candidate sites chosen by rules and need a field check.
-
-Controls: drag to rotate, right-drag to pan, wheel to zoom. On a touch screen, one finger rotates and two fingers pan and pinch to zoom. "Walk mode" lets you walk over the terrain with the arrow keys, or with the on-screen pad on a phone.
-
-Existing structures (amber) and farm ponds were mapped by hand on the Esri imagery and are shown as ground truth; existing structures are modelled generically as a check dam across the nearest stream.
+## How the page works
+Scroll, hold the arrow keys, or press PageDown/PageUp (or Space) to glide to the next or previous view (Home/End jump to the ends) to zoom from Earth to India, Maharashtra and the watershed. The map then cross-fades into the interactive 3D model, which rotates slowly until you take control: drag to rotate, wheel or pinch to zoom. The dots on the right jump between stages and Replay returns to the start. The intro map streams Esri World Imagery tiles and needs an internet connection; the India, Maharashtra, district and taluka outlines are from GADM (an older district set, so newer districts such as Palghar are missing; names updated by hand for Ahilyanagar, Chhatrapati Sambhajinagar and Dharashiv) and are indicative only.
 
 ## Data and credits
 - Field parcels: Fields of The World (FTW Global, Taylor Geospatial; PRUE model on Sentinel-2, 2024 run), CC-BY, https://source.coop/ftw/global-data. 10 m pixel-based; boundaries were refined against Esri imagery.
