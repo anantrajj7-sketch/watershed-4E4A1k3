@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><meta name="theme-color" content="#10161c">
-<title>Watershed – from Earth to a 3D watershed</title>
+<title>4E4A1k3 Watershed – from Earth to a 3D watershed</title>
 <style>
 html,body{margin:0;height:100%;background:#10161c;color:#e8edf1;font:13px system-ui,Segoe UI,sans-serif;overflow:hidden}
 #ui{max-height:92vh;overflow:auto;position:fixed;top:12px;left:12px;background:rgba(16,22,28,.88);padding:12px 14px;border-radius:8px;max-width:240px;border:1px solid #2b3844}
@@ -169,7 +169,7 @@ const k0=cam(0);
 const map=new maplibregl.Map({container:'map',style,center:[k0[1],k0[2]],zoom:k0[3]+ZO(),pitch:0,bearing:0,interactive:false,attributionControl:false,fadeDuration:0,maxPitch:80,canvasContextAttributes:{antialias:true}});
 G.dist.features.forEach(f=>{const e=document.createElement('div'),l=document.createElement('span');l.className='lbl dl'+(f.properties.n==='Ahilyanagar'?' ah':'');l.textContent=f.properties.n;e.appendChild(l);new maplibregl.Marker({element:e}).setLngLat(f.properties.c).addTo(map)});
 G.tal.features.forEach(f=>{const e=document.createElement('div'),l=document.createElement('span');l.className='lbl tl'+(f.properties.n==='Pathardi'?' pa':'');l.textContent=f.properties.n;e.appendChild(l);new maplibregl.Marker({element:e}).setLngLat(f.properties.c).addTo(map)});
-let ready=false;map.on('load',()=>{ready=true});
+window.__map=map;let ready=false;map.on('load',()=>{ready=true});
 addEventListener('resize',()=>map.resize());
 const TITLES=[[0,.14,'Earth','Our planet \u00b7 scroll to zoom in'],[.2,.46,'India','South Asia'],[.46,.60,'Maharashtra','State \u00b7 India'],[.60,.72,'Ahilyanagar','District · Taluka boundaries · Pathardi'],[.72,1.02,'Watershed','Pathardi \u00b7 Ashti \u00b7 Maharashtra \u00b7 2,363 ha'],[1.03,1.30,'Satellite data collection','Imagery \u00b7 radar \u00b7 elevation \u00b7 land use'],[1.30,1.62,'Field sampling','Soil profiles across the watershed'],[1.62,1.92,'Lab analysis','One sample, dissolved and measured'],[1.92,1.965,'Knowledge base','Everything collected, in one place']];
 const chips=[...document.querySelectorAll('#chips .chip')],CT=[.05,.07,.09,.11,.13,.15,.17];
@@ -204,25 +204,26 @@ const hq=/[#&]q=([0-9.]+)/.exec(location.hash);let forceQ=null;if(hq){forceQ=+hq
 // ---- DOM side of the story: satellite timer, knowledge-base book state, data items transmitted from the satellite, vertical marquee ----
 const BK={x:0,y:0,h:0,open:1,vis:0,nSat:0,nSoil:0};window.__book=BK;
 const lerp=(a,b,t)=>a+(b-a)*t;
-let satT=0,forceS=null;window.__satT=0;const SAT_DUR=9;                      // seconds the satellite takes for its whole pass
+let satT=0,forceS=null;window.__satT=0;const SAT_DUR=3,HOLD=2;                      // seconds the satellite takes for its whole pass
 const hsT=/[#&]s=([0-9.]+)/.exec(location.hash);if(hsT)forceS=+hsT[1];
-function satTick(q,dt){if(forceS!==null)satT=forceS;else if(q<.04)satT=0;else if(q>.30)satT=1;else if(satT<1)satT=Math.min(1,satT+dt/SAT_DUR);window.__satT=satT}
+let holdT=0;
+function satTick(q,dt){if(forceS!==null){satT=forceS;holdT=forceS>=1?99:0}else if(q<.04){satT=0;holdT=0}else if(q>.30){satT=1;holdT=99}else{if(satT<1)satT=Math.min(1,satT+dt/SAT_DUR);else holdT+=dt}window.__satT=satT}   // 3 s pass, then 2 s with the book open on the satellite data
 function bookState(q){
  const W=innerWidth,H=innerHeight;
  let x=.82*W,y=.7*H,h=Math.min(.36*H,.32*W),open=1;const vis=sm(cl(q,.03,.06));
- const m1=sm(cl(satT,.93,1));x=lerp(x,W-56,m1);y=lerp(y,H-58,m1);h=lerp(h,84,m1);open=1-m1;                 // closes and shrinks to the corner icon
+ const m1=sm(cl(holdT,HOLD,HOLD+.8));x=lerp(x,W-56,m1);y=lerp(y,H-58,m1);h=lerp(h,84,m1);open=1-m1;                 // closes and shrinks to the corner icon
  const m2=sm(cl(q,.82,.88));x=lerp(x,.3*W,m2);y=lerp(y,.52*H,m2);h=lerp(h,Math.min(.5*H,.4*W),m2);open=lerp(open,1,m2);   // expands in the lab view
  const m3=sm(cl(q,.92,1));x=lerp(x,.5*W,m3);y=lerp(y,.5*H,m3);h=lerp(h,Math.min(1.02*H,.7*W),m3);                    // zoom into the knowledge base
  BK.x=x;BK.y=y;BK.h=h;BK.open=open;BK.vis=vis}
 const MIL=[['Depth','how deep the soil goes'],['Texture','sand · silt · clay'],['pH','acidity / alkalinity'],['EC','salinity'],['CaCO₃','lime content'],['N','available nitrogen'],['P','available phosphorus'],['K','available potassium']];
 const marq=$('marq');MIL.forEach(mi=>{const d=document.createElement('div');d.className='mi';d.innerHTML='<b>'+mi[0]+'</b><span>'+mi[1]+'</span>';marq.appendChild(d)});
 const mq=[...marq.children];let mscroll=0;
-const LT=[.18,.34,.5,.66];                                       // when each data item is transmitted along the pass
+const LT=[.1,.28,.46,.64],LW=.2;                                       // when each data item is transmitted along the pass
 function storyFrame(q,dt,now){
  satTick(q,dt);bookState(q);
  // data items are transmitted from the satellite to the book, one by one
  const sp=window.__satPx||{on:false};let nS=0;$('chips').style.opacity=(q>.03?1:0);
- chips.forEach((c,i)=>{const f=cl(satT,LT[i],LT[i]+.1);
+ chips.forEach((c,i)=>{const f=cl(satT,LT[i],LT[i]+LW);
   if(f>0&&f<1&&sp.on){const t=sm(f),x=lerp(sp.x,BK.x,t),y=lerp(sp.y,BK.y,t)-Math.sin(Math.PI*t)*110;
    c.style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) translate(-50%,-50%) scale('+(.65+.5*Math.sin(Math.PI*Math.min(1,t*1.4))).toFixed(3)+')';c.style.opacity=(Math.min(1,f*9)*(1-Math.pow(t,4))).toFixed(2)}
   else{c.style.opacity='0';if(f>=1)nS++}});
